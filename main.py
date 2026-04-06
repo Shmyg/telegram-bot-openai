@@ -9,6 +9,11 @@ from agent import run_agent
 load_dotenv()
 
 TELEGRAM_TOKEN = os.environ["TELEGRAM_TOKEN"]
+ALLOWED_USERS = set(
+    int(uid.strip())
+    for uid in os.environ.get("ALLOWED_USER_IDS", "").split(",")
+    if uid.strip()
+)
 
 logging.basicConfig(
     level=logging.INFO,
@@ -20,13 +25,26 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
+def is_allowed(update: Update) -> bool:
+    return update.effective_user.id in ALLOWED_USERS
+
+
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    logger.info("User %s started the bot", update.effective_user.id)
+    user_id = update.effective_user.id
+    if not is_allowed(update):
+        logger.warning("Unauthorized /start from user %s", user_id)
+        await update.message.reply_text("Access denied.")
+        return
+    logger.info("User %s started the bot", user_id)
     await update.message.reply_text("Hello! I'm your AI assistant. Ask me anything.")
 
 
 async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     user_id = update.effective_user.id
+    if not is_allowed(update):
+        logger.warning("Unauthorized message from user %s", user_id)
+        await update.message.reply_text("Access denied.")
+        return
     logger.info("Message from %s: %s", user_id, update.message.text)
     response = await run_agent(update.message.text)
     logger.info("Response to %s: %s", user_id, response)
