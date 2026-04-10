@@ -164,7 +164,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
                 from_agent="Assistant",
                 to_agent="HumanSupport",
                 reason=intent_name,
-                metadata={"trigger_message_id": user_msg.id},
+                extra_data={"trigger_message_id": user_msg.id},
             ))
             db.add(WorkflowState(
                 session_id=session.id,

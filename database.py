@@ -1,4 +1,5 @@
 import os
+from collections.abc import Iterator
 from contextlib import contextmanager
 from sqlalchemy.orm import sessionmaker, Session as DBSession
 from models import init_db
@@ -10,7 +11,7 @@ _SessionFactory = sessionmaker(bind=_engine)
 
 
 @contextmanager
-def get_db() -> DBSession:
+def get_db() -> Iterator[DBSession]:
     session = _SessionFactory()
     try:
         yield session

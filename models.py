@@ -106,7 +106,7 @@ class HandoffEvent(Base):
     from_agent: Mapped[str] = mapped_column(String(255))
     to_agent: Mapped[str] = mapped_column(String(255))
     reason: Mapped[str | None] = mapped_column(Text, nullable=True)
-    metadata: Mapped[dict | None] = mapped_column(JSON, nullable=True)
+    extra_data: Mapped[dict | None] = mapped_column(JSON, nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
 
     session: Mapped["Session"] = relationship(back_populates="handoff_events")
