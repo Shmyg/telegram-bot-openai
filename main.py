@@ -131,6 +131,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
         )
         db.add(user_msg)
         db.flush()
+        user_msg_id = user_msg.id
 
     # Build history and run agent
     history = _histories.setdefault(tg_user.id, [])
@@ -146,7 +147,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
 
         # Save intent on the user message
         if intent_name:
-            db.add(Intent(message_id=user_msg.id, name=intent_name, confidence=1.0))
+            db.add(Intent(message_id=user_msg_id, name=intent_name, confidence=1.0))
 
         # Save assistant reply
         db.add(Message(
@@ -164,7 +165,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
                 from_agent="Assistant",
                 to_agent="HumanSupport",
                 reason=intent_name,
-                extra_data={"trigger_message_id": user_msg.id},
+                extra_data={"trigger_message_id": user_msg_id},
             ))
             db.add(WorkflowState(
                 session_id=session.id,
